@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENT
+  MUSICIAN
+}
+
+enum AdvertisementStatus {
+  DRAFT
+  PUBLISHED
+  IN_PROGRESS
+  CLOSED
+}
+
+enum ResponseStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum NotificationType {
+  NEW_RESPONSE
+  RESPONSE_ACCEPTED
+  RESPONSE_REJECTED
+  SYSTEM
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  login         String         @unique
+  password      String
+  phone         String?
+  role          Role
+  createdAt     DateTime       @default(now())
+  musician      Musician?
+  client        Client?
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Musician {
+  userId       Int        @id
+  bio          String?    @db.Text
+  genre        String?
+  instrument   String?
+  experience   String?    @db.Text
+  education    String?    @db.Text
+  portfolioUrl String?
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  responses    Response[]
+
+  @@map("musicians")
+}
+
+model Client {
+  userId         Int             @id
+  companyName    String?
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  advertisements Advertisement[]
+
+  @@map("clients")
+}
+
+model Advertisement {
+  id                 Int                 @id @default(autoincrement())
+  clientId           Int
+  title              String
+  description        String              @db.Text
+  eventDate          DateTime
+  location           String
+  budget             Decimal             @db.Decimal(10, 2)
+  requiredGenre      String
+  requiredInstrument String
+  status             AdvertisementStatus @default(DRAFT)
+  createdAt          DateTime            @default(now())
+  client             Client              @relation(fields: [clientId], references: [userId], onDelete: Cascade)
+  responses          Response[]
+
+  @@index([clientId])
+  @@index([status])
+  @@index([requiredGenre])
+  @@index([requiredInstrument])
+  @@map("advertisements")
+}
+
+model Response {
+  id              Int              @id @default(autoincrement())
+  musicianId      Int
+  advertisementId Int
+  status          ResponseStatus   @default(PENDING)
+  musician        Musician         @relation(fields: [musicianId], references: [userId], onDelete: Cascade)
+  advertisement   Advertisement    @relation(fields: [advertisementId], references: [id], onDelete: Cascade)
+
+  @@unique([musicianId, advertisementId])
+  @@index([advertisementId])
+  @@index([status])
+  @@map("responses")
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  userId    Int
+  message   String
+  type      NotificationType @default(SYSTEM)
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@map("notifications")
+}
