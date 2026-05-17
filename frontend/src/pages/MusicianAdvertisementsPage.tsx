@@ -92,11 +92,11 @@ export function MusicianAdvertisementsPage() {
                 budget: event.target.value,
               }))
             }
-            placeholder="5000"
+            placeholder="5000 ₽"
           />
         </label>
         <button className="btn-dark" type="submit">
-          🔎 Найти
+          Найти
         </button>
       </form>
 

@@ -17,7 +17,7 @@ export function MusicianProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({
     bio: "",
-    genre: "",
+    genres: [] as string[],
     instrument: "",
     experience: "",
     education: "",
@@ -28,9 +28,12 @@ export function MusicianProfilePage() {
   const loadProfile = async () => {
     const data = await profileApi.getMusician();
     setProfile(data);
+    const genreList = data.musician?.genre
+      ? data.musician.genre.split(",").map((g) => g.trim()).filter(Boolean)
+      : [];
     setForm({
       bio: data.musician?.bio || "",
-      genre: data.musician?.genre || "",
+      genres: genreList,
       instrument: data.musician?.instrument || "",
       experience: data.musician?.experience || "",
       education: data.musician?.education || "",
@@ -45,13 +48,32 @@ export function MusicianProfilePage() {
 
   const saveProfile = async (event: FormEvent) => {
     event.preventDefault();
-    const updated = await profileApi.updateMusician(form);
+    // send genres as comma-separated string to backend (no DB schema changes)
+    const payload: Record<string, string> = {
+      bio: form.bio,
+      genre: form.genres.join(", "),
+      instrument: form.instrument,
+      experience: form.experience,
+      education: form.education,
+      portfolioUrl: form.portfolioUrl,
+      phone: form.phone,
+    };
+    const updated = await profileApi.updateMusician(payload);
     setProfile(updated);
     setIsEditing(false);
   };
 
-  const updateField = (field: keyof typeof form, value: string) => {
+  const updateField = (field: keyof typeof form, value: string | string[]) => {
     setForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const toggleGenre = (genre: string) => {
+    setForm((current) => ({
+      ...current,
+      genres: current.genres.includes(genre)
+        ? current.genres.filter((g) => g !== genre)
+        : [...current.genres, genre],
+    }));
   };
 
   if (!profile) {
@@ -80,17 +102,20 @@ export function MusicianProfilePage() {
                 onChange={(event) => updateField("phone", event.target.value)}
               />
             </label>
-            <label>
-              Жанр
-              <select
-                value={form.genre}
-                onChange={(event) => updateField("genre", event.target.value)}
-              >
-                <option value="">Выберите жанр</option>
+            <label className="grid-full">
+              Жанры (выберите один или несколько)
+              <div className="checkbox-group">
                 {genres.map((genre) => (
-                  <option key={genre}>{genre}</option>
+                  <label key={genre} className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={form.genres.includes(genre)}
+                      onChange={() => toggleGenre(genre)}
+                    />
+                    {genre}
+                  </label>
                 ))}
-              </select>
+              </div>
             </label>
             <label>
               Инструмент
@@ -172,15 +197,15 @@ export function MusicianProfilePage() {
           <h1>{profile.login}</h1>
           <div className="profile-meta">
             <span>☎ {profile.phone || "Телефон не указан"}</span>
-            <span>🎼 {profile.musician?.genre || "Жанр не указан"}</span>
+            <span>🎼 {profile.musician?.genre ? profile.musician.genre : "Жанр не указан"}</span>
             <span>
               🎸 {profile.musician?.instrument || "Инструмент не указан"}
             </span>
           </div>
           <div className="profile-tags">
-            {profile.musician?.genre && (
-              <span className="profile-tag">{profile.musician.genre}</span>
-            )}
+            {profile.musician?.genre && profile.musician.genre.split(",").map((g: string) => (
+              <span key={g.trim()} className="profile-tag">{g.trim()}</span>
+            ))}
             {profile.musician?.instrument && (
               <span className="profile-tag">{profile.musician.instrument}</span>
             )}

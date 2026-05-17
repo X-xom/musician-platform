@@ -248,9 +248,9 @@ export async function createResponse(
     throw new HttpError(400, "Откликаться можно только на активные объявления");
   }
 
-  const genreMatches =
-    normalizeRequirement(musician.genre) ===
-    normalizeRequirement(advertisement.requiredGenre);
+  const adGenre = normalizeRequirement(advertisement.requiredGenre);
+  const musicianGenres = (musician.genre || "").split(",").map((g) => g.trim()).filter(Boolean).map(normalizeRequirement);
+  const genreMatches = musicianGenres.length > 0 && musicianGenres.includes(adGenre);
   const instrumentMatches =
     normalizeRequirement(musician.instrument) ===
     normalizeRequirement(advertisement.requiredInstrument);

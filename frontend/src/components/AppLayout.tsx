@@ -35,7 +35,7 @@ export function AppLayout({ variant }: { variant: "client" | "musician" }) {
                 variant === "musician" ? "/musician/profile" : "/client/profile"
               }
             >
-              👤 {user?.login || "Пользователь"}
+              {user?.login || "Пользователь"}
             </Link>
             <button
               className="dropdown-action"

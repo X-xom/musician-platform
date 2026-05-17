@@ -30,7 +30,7 @@ export function LoginPage() {
       navigate(redirectPath);
     } catch (requestError) {
       setError(
-        "Неверный логин или пароль. \nПожалуйста, проверьте введённые данные.",
+        "Неверный логин или пароль. Пожалуйста, проверьте введённые данные.",
       );
     }
   };
@@ -52,7 +52,7 @@ export function LoginPage() {
             <span className="role-icon">🎤</span>
             <span>
               <strong>Я музыкант</strong>
-              <small>Ищу выступления, управляю профилем и откликами</small>
+              <small>Ищу выступления и заказы</small>
             </span>
           </button>
           <button
@@ -63,7 +63,7 @@ export function LoginPage() {
             <span className="role-icon">🧾</span>
             <span>
               <strong>Я заказчик</strong>
-              <small>Размещаю объявления и ищу исполнителей</small>
+              <small>Ищу музыкантов для мероприятий</small>
             </span>
           </button>
         </div>

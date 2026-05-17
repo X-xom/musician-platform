@@ -46,7 +46,7 @@ export function Notifications() {
   return (
     <div className="notifications">
       <button className="nav-button" type="button">
-        🔔 Уведомления{" "}
+        Уведомления{" "}
         {unreadCount > 0 && (
           <span className="notification-count">{unreadCount}</span>
         )}

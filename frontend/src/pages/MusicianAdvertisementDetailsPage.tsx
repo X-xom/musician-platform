@@ -7,7 +7,9 @@ import { formatCurrency, formatDate } from "../utils/format";
 export function MusicianAdvertisementDetailsPage() {
   const params = useParams();
   const id = Number(params.id);
-  const [advertisement, setAdvertisement] = useState<Advertisement | null>(null);
+  const [advertisement, setAdvertisement] = useState<Advertisement | null>(
+    null,
+  );
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -21,18 +23,26 @@ export function MusicianAdvertisementDetailsPage() {
       await advertisementApi.respond(advertisement.id);
       setMessage("Отклик отправлен");
     } catch {
-      setMessage("Не удалось отправить отклик");
+      setMessage(
+        "Отклик не отправлен: профиль должен совпадать с жанром и инструментом объявления.",
+      );
     }
   };
 
   if (!advertisement) {
-    return <main className="page container-page"><p>Загрузка...</p></main>;
+    return (
+      <main className="page container-page">
+        <p>Загрузка...</p>
+      </main>
+    );
   }
 
   return (
     <main className="page container-page">
       <div className="back-header">
-        <Link to="/musician/advertisements">←</Link>
+        <Link className="back-arrow" to="/musician/advertisements">
+          ←
+        </Link>
         <h1>{advertisement.title}</h1>
       </div>
 
@@ -41,7 +51,6 @@ export function MusicianAdvertisementDetailsPage() {
           <span>📅 {formatDate(advertisement.eventDate)}</span>
           <span>📍 {advertisement.location}</span>
           <span>💰 {formatCurrency(advertisement.budget)}</span>
-          <span>Статус: {advertisement.status}</span>
         </div>
         <div className="tags">
           <span className="tag">{advertisement.requiredGenre}</span>
@@ -50,7 +59,9 @@ export function MusicianAdvertisementDetailsPage() {
         <h3>Описание требований</h3>
         <p>{advertisement.description}</p>
         {message && <p className="notice">{message}</p>}
-        <button className="btn-respond" type="button" onClick={respond}>Откликнуться</button>
+        <button className="btn-respond" type="button" onClick={respond}>
+          Откликнуться
+        </button>
       </article>
     </main>
   );
